@@ -1,0 +1,16 @@
+services:
+  portfolio-db:
+    image: "postgres:16"
+    container_name: user-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: pawel
+      POSTGRES_PASSWORD: haslomaslo2000
+    volumes:
+      - db-users-data:/var/lib/postgresql/data
+
+volumes:
+  db-users-data:
+    driver: local
