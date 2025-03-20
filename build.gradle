@@ -46,6 +46,15 @@ dependencies {
     //Map struct
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+
+    // Spring Security + OAuth2 Resource Server (JWT)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation 'org.springframework.security:spring-security-oauth2-jose' // do obsługi JWT
+
+    // Keycloak Admin Client (do zarządzania użytkownikami)
+    implementation 'org.keycloak:keycloak-admin-client:22.0.1'
 }
 
 

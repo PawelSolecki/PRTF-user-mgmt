@@ -18,3 +18,19 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: localhost:8080/realms/portfolios
+          jwk-set-uri: localhost:8080/realms/portfolios/protocol/openid-connect/certs
+server:
+  port: 8081
+
+keycloak:
+  realm: portfolios
+  auth-server-url: http://localhost:8080
+  client-id: user-mgmt-client
+  client-secret: ${KC_CLIENT_SECRET}
+

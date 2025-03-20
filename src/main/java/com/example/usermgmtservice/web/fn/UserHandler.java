@@ -1,8 +1,11 @@
 package com.example.usermgmtservice.web.fn;
 
 import com.example.usermgmtservice.model.UserDTO;
+import com.example.usermgmtservice.model.auth.RegisterRequest;
+import com.example.usermgmtservice.model.exception.AuthException;
 import com.example.usermgmtservice.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -19,6 +22,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class UserHandler {
     private final UserService userService;
     private final Validator validator;
@@ -30,6 +34,14 @@ public class UserHandler {
         if (errors.hasErrors()) {
             throw new ServerWebInputException(errors.toString());
         }
+    }
+
+    public Mono<ServerResponse> register(ServerRequest request) {
+        log.info("register called");
+        return request.bodyToMono(RegisterRequest.class)
+            .flatMap(userService::register)
+            .flatMap(userResponse -> ServerResponse.status(HttpStatus.CREATED).bodyValue(userResponse))
+            .onErrorResume(AuthException.class, e -> ServerResponse.status(e.getStatus()).build());
     }
 
     public Mono<ServerResponse> listUsers(ServerRequest request) {
