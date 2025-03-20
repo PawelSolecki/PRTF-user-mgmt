@@ -32,7 +32,8 @@ public class SecurityConfig {
             .authorizeExchange(exchanges -> exchanges
                 .pathMatchers(
                     "/error",
-                    "/api/v1/user/register"
+                    "/api/v1/user/register",
+                    "/api/v1/user/login"
                 ).permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
                 .anyExchange().authenticated()

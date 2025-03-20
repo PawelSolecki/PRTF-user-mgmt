@@ -3,7 +3,9 @@ package com.example.usermgmtservice.service;
 import com.example.usermgmtservice.domain.User;
 import com.example.usermgmtservice.mapper.UserMapper;
 import com.example.usermgmtservice.model.UserDTO;
+import com.example.usermgmtservice.model.auth.LoginRequest;
 import com.example.usermgmtservice.model.auth.RegisterRequest;
+import com.example.usermgmtservice.model.auth.TokenResponse;
 import com.example.usermgmtservice.model.auth.UserResponse;
 import com.example.usermgmtservice.model.exception.AuthException;
 import com.example.usermgmtservice.repository.UserRepository;
@@ -43,6 +45,11 @@ public class UserServiceImpl implements UserService {
                         savedUser.getEmail()
                     ))
             ));
+    }
+
+    @Override
+    public Mono<TokenResponse> login(LoginRequest request) {
+        return authService.login(request);
     }
 
     @Override

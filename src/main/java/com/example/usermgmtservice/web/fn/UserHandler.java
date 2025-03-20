@@ -1,7 +1,9 @@
 package com.example.usermgmtservice.web.fn;
 
 import com.example.usermgmtservice.model.UserDTO;
+import com.example.usermgmtservice.model.auth.LoginRequest;
 import com.example.usermgmtservice.model.auth.RegisterRequest;
+import com.example.usermgmtservice.model.auth.TokenResponse;
 import com.example.usermgmtservice.model.exception.AuthException;
 import com.example.usermgmtservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +39,16 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> register(ServerRequest request) {
-        log.info("register called");
         return request.bodyToMono(RegisterRequest.class)
             .flatMap(userService::register)
             .flatMap(userResponse -> ServerResponse.status(HttpStatus.CREATED).bodyValue(userResponse))
+            .onErrorResume(AuthException.class, e -> ServerResponse.status(e.getStatus()).build());
+    }
+
+    public Mono<ServerResponse> login(ServerRequest request){
+        return request.bodyToMono(LoginRequest.class)
+            .flatMap(userService::login)
+            .flatMap(tokenResponse -> ServerResponse.status(HttpStatus.OK).bodyValue(tokenResponse))
             .onErrorResume(AuthException.class, e -> ServerResponse.status(e.getStatus()).build());
     }
 

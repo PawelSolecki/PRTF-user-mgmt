@@ -1,6 +1,8 @@
 package com.example.usermgmtservice.service;
 
+import com.example.usermgmtservice.model.auth.LoginRequest;
 import com.example.usermgmtservice.model.auth.RegisterRequest;
+import com.example.usermgmtservice.model.auth.TokenResponse;
 import com.example.usermgmtservice.model.auth.UserResponse;
 import com.example.usermgmtservice.model.exception.AuthException;
 import jakarta.ws.rs.core.Response;
@@ -14,6 +16,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -26,8 +29,19 @@ public class AuthServiceImpl implements AuthService {
 
     private final Keycloak keycloakAdminClient;
 
+    private final WebClient webClient;
+
+    @Value("${keycloak.auth-server-url}")
+    private String authServerUrl;
+
     @Value("${keycloak.realm}")
     private String realm;
+
+    @Value("${keycloak.client-id}")
+    private String clientId;
+
+    @Value("${keycloak.client-secret}")
+    private String clientSecret;
 
     @Override
     public Mono<Void> createKeycloakUser(RegisterRequest request, UUID userId) {
@@ -54,5 +68,21 @@ public class AuthServiceImpl implements AuthService {
             }
 
         });
+    }
+
+    @Override
+    public Mono<TokenResponse> login(LoginRequest request) {
+        return webClient.post()
+            .uri(authServerUrl + "/realms/{realm}/protocol/openid-connect/token", realm)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .bodyValue(
+                "grant_type=password&" +
+                    "client_id=" + clientId + "&" +
+                    "client_secret=" + clientSecret + "&" +
+                    "username=" + request.email() + "&" +
+                    "password=" + request.password()
+            )
+            .retrieve()
+            .bodyToMono(TokenResponse.class);
     }
 }

@@ -24,6 +24,7 @@ public class UserRouterConfig {
     public RouterFunction<ServerResponse> customRoutes() {
         return route()
             .POST(USER_PATH+"/register", accept(APPLICATION_JSON), handler::register)
+            .POST(USER_PATH+"/login", accept(APPLICATION_JSON), handler::login)
             .GET(USER_PATH, accept(APPLICATION_JSON), handler::listUsers)
             .GET(USER_PATH_ID, accept(APPLICATION_JSON), handler::getUserById)
             .POST(USER_PATH, accept(APPLICATION_JSON), handler::createNewUser)
