@@ -23,34 +23,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final AuthService authService;
 
-    @Override
-    public Mono<UserResponse> register(RegisterRequest request) {
-        return userRepository.findByEmail(request.email())
-            .flatMap(existingUser ->
-                // Jawnie określ typ błędu jako UserResponse
-                Mono.<UserResponse>error(new AuthException(HttpStatus.CONFLICT, "User exists"))
-            )
-            .switchIfEmpty(Mono.defer(() ->
-                userRepository.save(userMapper.toEntity(request))
-                    .flatMap(savedUser ->
-                        authService.createKeycloakUser(request, savedUser.getId())
-                            .thenReturn(savedUser) // Zwróć savedUser po operacji Keycloaka
-                    )
-
-                    .map(savedUser -> new UserResponse(
-                        savedUser.getId(),
-                        savedUser.getName(),
-                        savedUser.getEmail()
-                    ))
-            ));
-    }
-
-    @Override
-    public Mono<TokenResponse> login(LoginRequest request) {
-        return authService.login(request);
-    }
 
     @Override
     public Flux<UserDTO> listUsers() {

@@ -1,12 +1,11 @@
 package com.example.usermgmtservice.service;
 
-import com.example.usermgmtservice.model.auth.LoginRequest;
-import com.example.usermgmtservice.model.auth.RegisterRequest;
-import com.example.usermgmtservice.model.auth.TokenResponse;
+import com.example.usermgmtservice.mapper.UserMapper;
+import com.example.usermgmtservice.model.auth.*;
 import com.example.usermgmtservice.model.exception.AuthException;
+import com.example.usermgmtservice.repository.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -21,12 +20,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
-public class AuthServiceImpl implements AuthService {
+public class AuthServiceKeycloakImpl implements AuthService {
 
     private final Keycloak keycloakAdminClient;
 
     private final WebClient webClient;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Value("${keycloak.auth-server-url}")
     private String authServerUrl;
@@ -41,6 +41,26 @@ public class AuthServiceImpl implements AuthService {
     private String clientSecret;
 
     @Override
+    public Mono<UserResponse> register(RegisterRequest request) {
+        return userRepository.findByEmail(request.email())
+            .flatMap(existingUser ->
+                Mono.<UserResponse>error(new AuthException(HttpStatus.CONFLICT, "User exists"))
+            )
+            .switchIfEmpty(Mono.defer(() ->
+                userRepository.save(userMapper.toEntity(request))
+                    .flatMap(savedUser ->
+                        createKeycloakUser(request, savedUser.getId())
+                            .thenReturn(savedUser)
+                    )
+
+                    .map(savedUser -> new UserResponse(
+                        savedUser.getId(),
+                        savedUser.getName(),
+                        savedUser.getEmail()
+                    ))
+            ));
+    }
+
     public Mono<Void> createKeycloakUser(RegisterRequest request, UUID userId) {
         return Mono.fromCallable(() -> {
             UserRepresentation user = new UserRepresentation();
@@ -81,5 +101,20 @@ public class AuthServiceImpl implements AuthService {
             )
             .retrieve()
             .bodyToMono(TokenResponse.class);
+    }
+
+    @Override
+    public Mono<Void> logout(LogoutRequest request) {
+        return webClient.post()
+            .uri(authServerUrl + "/realms/{realm}/protocol/openid-connect/logout", realm)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .bodyValue(
+                "client_id=" + clientId + "&" +
+                    "client_secret=" + clientSecret + "&" +
+                    "refresh_token=" + request.refreshToken()
+            )
+            .retrieve()
+            .toBodilessEntity()
+            .then();
     }
 }

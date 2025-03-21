@@ -32,8 +32,7 @@ public class SecurityConfig {
             .authorizeExchange(exchanges -> exchanges
                 .pathMatchers(
                     "/error",
-                    "/api/v1/user/register",
-                    "/api/v1/user/login"
+                    "/api/v1/auth/*"
                 ).permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/v1/user").permitAll()
                 .anyExchange().authenticated()
@@ -46,7 +45,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Konwerter JWT -> Authentication z rolami
     private JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
@@ -77,7 +75,7 @@ public class SecurityConfig {
         return KeycloakBuilder.builder()
             .serverUrl(serverUrl)
             .realm(realm)
-            .clientId("user-mgmt-client")
+            .clientId(clientId)
             .clientSecret(clientSecret)
             .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
             .build();

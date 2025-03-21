@@ -38,19 +38,7 @@ public class UserHandler {
         }
     }
 
-    public Mono<ServerResponse> register(ServerRequest request) {
-        return request.bodyToMono(RegisterRequest.class)
-            .flatMap(userService::register)
-            .flatMap(userResponse -> ServerResponse.status(HttpStatus.CREATED).bodyValue(userResponse))
-            .onErrorResume(AuthException.class, e -> ServerResponse.status(e.getStatus()).build());
-    }
 
-    public Mono<ServerResponse> login(ServerRequest request){
-        return request.bodyToMono(LoginRequest.class)
-            .flatMap(userService::login)
-            .flatMap(tokenResponse -> ServerResponse.status(HttpStatus.OK).bodyValue(tokenResponse))
-            .onErrorResume(AuthException.class, e -> ServerResponse.status(e.getStatus()).build());
-    }
 
     public Mono<ServerResponse> listUsers(ServerRequest request) {
         return ServerResponse.ok().body(userService.listUsers(), UserDTO.class);
@@ -63,15 +51,6 @@ public class UserHandler {
             UserDTO.class);
     }
 
-    public Mono<ServerResponse> createNewUser(ServerRequest request) {
-        return userService.saveNewUser(request.bodyToMono(UserDTO.class).doOnNext(this::validate))
-            .flatMap(userDTO -> ServerResponse
-                .created(UriComponentsBuilder
-                    .fromPath(UserRouterConfig.USER_PATH_ID)
-                    .build(userDTO.getId()))
-                .build());
-
-    }
 
     public Mono<ServerResponse> updateUserById(ServerRequest request) {
         return request.bodyToMono(UserDTO.class)

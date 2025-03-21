@@ -12,21 +12,18 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 @Configuration
 @RequiredArgsConstructor
-public class UserRouterConfig {
+public class AuthRouterConfig {
 
-    public static final String USER_PATH = "/api/v1/user";
-    public static final String USER_PATH_ID = USER_PATH + "/{userId}";
+    public static final String AUTH_PATH = "/api/v1/auth";
 
-    private final UserHandler handler;
-
+    private final AuthHandler handler;
 
     @Bean
-    public RouterFunction<ServerResponse> customUserRoutes() {
+    public RouterFunction<ServerResponse> customAuthRoutes(){
         return route()
-            .GET(USER_PATH, accept(APPLICATION_JSON), handler::listUsers)
-            .GET(USER_PATH_ID, accept(APPLICATION_JSON), handler::getUserById)
-            .PUT(USER_PATH_ID, accept(APPLICATION_JSON), handler::updateUserById)
+            .POST(AUTH_PATH+"/register", accept(APPLICATION_JSON), handler::register)
+            .POST(AUTH_PATH+"/login", accept(APPLICATION_JSON), handler::login)
+            .POST(AUTH_PATH+"/logout", accept(APPLICATION_JSON), handler::logout)
             .build();
     }
-
 }

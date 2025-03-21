@@ -1,4 +1,7 @@
 package com.example.usermgmtservice.model.auth;
 
-public record LoginRequest(String email, String password) {
+public record LoginRequest(
+    String email,
+    String password
+) {
 }

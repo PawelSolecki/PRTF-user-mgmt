@@ -11,8 +11,6 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface UserService {
-    Mono<UserResponse> register(RegisterRequest request);
-    Mono<TokenResponse> login(LoginRequest request);
     Flux<UserDTO> listUsers();
 
     Mono<UserDTO> getUserById(UUID userId);
