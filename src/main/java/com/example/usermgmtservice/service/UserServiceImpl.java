@@ -29,10 +29,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<UserDTO> saveNewUser(Mono<UserDTO> userDTO) {
-        return userDTO.map(userMapper::toEntity)
-                .flatMap(userRepository::save)
-                .map(userMapper::toDto);
+    public Mono<UserDTO> getUserByKeycloakId(UUID id) {
+        return userRepository.findByKeycloakId(id).map(userMapper::toDto);
     }
 
     @Override

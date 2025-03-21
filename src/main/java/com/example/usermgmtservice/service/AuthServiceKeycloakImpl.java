@@ -1,11 +1,14 @@
 package com.example.usermgmtservice.service;
 
+import com.example.usermgmtservice.domain.User;
 import com.example.usermgmtservice.mapper.UserMapper;
+import com.example.usermgmtservice.model.UserDTO;
 import com.example.usermgmtservice.model.auth.*;
 import com.example.usermgmtservice.model.exception.AuthException;
 import com.example.usermgmtservice.repository.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -14,12 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceKeycloakImpl implements AuthService {
 
     private final Keycloak keycloakAdminClient;
@@ -47,24 +52,24 @@ public class AuthServiceKeycloakImpl implements AuthService {
                 Mono.<UserResponse>error(new AuthException(HttpStatus.CONFLICT, "User exists"))
             )
             .switchIfEmpty(Mono.defer(() ->
-                userRepository.save(userMapper.toEntity(request))
-                    .flatMap(savedUser ->
-                        createKeycloakUser(request, savedUser.getId())
-                            .thenReturn(savedUser)
-                    )
+                createKeycloakUser(request)
+                    .flatMap(keycloakUserId -> {
+                        User userEntity = userMapper.toEntity(request);
+                        userEntity.setKeycloakId(UUID.fromString(keycloakUserId));
 
-                    .map(savedUser -> new UserResponse(
-                        savedUser.getId(),
-                        savedUser.getName(),
-                        savedUser.getEmail()
-                    ))
+                        return userRepository.save(userEntity)
+                            .map(savedUser -> new UserResponse(
+                                savedUser.getId(),
+                                savedUser.getName(),
+                                savedUser.getEmail()
+                            ));
+                    })
             ));
     }
 
-    public Mono<Void> createKeycloakUser(RegisterRequest request, UUID userId) {
+    public Mono<String> createKeycloakUser(RegisterRequest request) {
         return Mono.fromCallable(() -> {
             UserRepresentation user = new UserRepresentation();
-            user.setId(userId.toString());
             user.setUsername(request.email());
             user.setEmail(request.email());
             user.setFirstName(request.name());
@@ -81,10 +86,11 @@ public class AuthServiceKeycloakImpl implements AuthService {
                 if (response.getStatus() != 201) {
                     throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR, "Keycloak user creation failed");
                 }
-                return null;
-            }
 
-        });
+                String location = response.getLocation().getPath();
+                return location.substring(location.lastIndexOf('/') + 1);
+            }
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

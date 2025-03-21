@@ -1,14 +1,13 @@
 package com.example.usermgmtservice.web.fn;
 
 import com.example.usermgmtservice.model.UserDTO;
-import com.example.usermgmtservice.model.auth.LoginRequest;
-import com.example.usermgmtservice.model.auth.RegisterRequest;
-import com.example.usermgmtservice.model.auth.TokenResponse;
-import com.example.usermgmtservice.model.exception.AuthException;
 import com.example.usermgmtservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
@@ -17,7 +16,6 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebInputException;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -39,9 +37,20 @@ public class UserHandler {
     }
 
 
-
     public Mono<ServerResponse> listUsers(ServerRequest request) {
         return ServerResponse.ok().body(userService.listUsers(), UserDTO.class);
+    }
+
+    public Mono<ServerResponse> getUser(ServerRequest request) {
+        return ReactiveSecurityContextHolder.getContext()
+            .map(SecurityContext::getAuthentication)
+            .flatMap(auth -> {
+                Jwt jwt = (Jwt) auth.getPrincipal();
+                UUID id = UUID.fromString(jwt.getSubject());
+                log.info("UserHandler -  id: {}", id);
+                return ServerResponse.ok().body(userService.getUserByKeycloakId(id), UserDTO.class);
+            })
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     public Mono<ServerResponse> getUserById(ServerRequest request) {

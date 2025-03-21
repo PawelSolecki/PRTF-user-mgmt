@@ -19,6 +19,7 @@ public class User {
 
     @Id
     private UUID id;
+    private UUID keycloakId;
     private String name;
     private String email;
     private LocalDateTime createdDate;

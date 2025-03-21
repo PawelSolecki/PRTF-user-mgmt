@@ -14,7 +14,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 @RequiredArgsConstructor
 public class UserRouterConfig {
 
-    public static final String USER_PATH = "/api/v1/user";
+    public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_ID = USER_PATH + "/{userId}";
 
     private final UserHandler handler;
@@ -24,8 +24,9 @@ public class UserRouterConfig {
     public RouterFunction<ServerResponse> customUserRoutes() {
         return route()
             .GET(USER_PATH, accept(APPLICATION_JSON), handler::listUsers)
-            .GET(USER_PATH_ID, accept(APPLICATION_JSON), handler::getUserById)
-            .PUT(USER_PATH_ID, accept(APPLICATION_JSON), handler::updateUserById)
+            .GET(USER_PATH+"/me", accept(APPLICATION_JSON), handler::getUser)
+//            .GET(USER_PATH_ID, accept(APPLICATION_JSON), handler::getUserById)
+//            .PUT(USER_PATH_ID, accept(APPLICATION_JSON), handler::updateUserById)
             .build();
     }
 
