@@ -48,7 +48,7 @@ public class UserHandler {
                 Jwt jwt = (Jwt) auth.getPrincipal();
                 UUID id = UUID.fromString(jwt.getSubject());
                 log.info("UserHandler -  id: {}", id);
-                return ServerResponse.ok().body(userService.getUserByKeycloakId(id), UserDTO.class);
+                return ServerResponse.ok().body(userService.getUserById(id), UserDTO.class);
             })
             .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }

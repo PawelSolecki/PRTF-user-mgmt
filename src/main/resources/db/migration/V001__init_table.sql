@@ -1,8 +1,10 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+--
+-- CREATE TABLE users (
+--                        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 CREATE TABLE users (
-                       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                       keycloak_id UUID NOT NULL UNIQUE,
+                       id UUID PRIMARY KEY ,
+--                        keycloak_id UUID NOT NULL UNIQUE,
                        name VARCHAR(255) NOT NULL,
                        email VARCHAR(255) UNIQUE NOT NULL,
                        created_date TIMESTAMP NOT NULL DEFAULT NOW(),

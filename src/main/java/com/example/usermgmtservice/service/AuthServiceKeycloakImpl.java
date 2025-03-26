@@ -2,7 +2,6 @@ package com.example.usermgmtservice.service;
 
 import com.example.usermgmtservice.domain.User;
 import com.example.usermgmtservice.mapper.UserMapper;
-import com.example.usermgmtservice.model.UserDTO;
 import com.example.usermgmtservice.model.auth.*;
 import com.example.usermgmtservice.model.exception.AuthException;
 import com.example.usermgmtservice.repository.UserRepository;
@@ -55,14 +54,21 @@ public class AuthServiceKeycloakImpl implements AuthService {
                 createKeycloakUser(request)
                     .flatMap(keycloakUserId -> {
                         User userEntity = userMapper.toEntity(request);
-                        userEntity.setKeycloakId(UUID.fromString(keycloakUserId));
-
+                        userEntity.setId(UUID.fromString(keycloakUserId));
+                        userEntity.setNew(true);
+                        log.info("User created with keycloak id: {}", keycloakUserId);
+                        log.info("User: " + userEntity);
                         return userRepository.save(userEntity)
-                            .map(savedUser -> new UserResponse(
-                                savedUser.getId(),
-                                savedUser.getName(),
-                                savedUser.getEmail()
-                            ));
+                            .map(savedUser -> {
+                                    UserResponse ur = new UserResponse(
+                                        savedUser.getId(),
+                                        savedUser.getName(),
+                                        savedUser.getEmail()
+                                    );
+                                    log.info("User saved with id: {}", savedUser.getId());
+                                    return ur;
+                                }
+                            );
                     })
             ));
     }

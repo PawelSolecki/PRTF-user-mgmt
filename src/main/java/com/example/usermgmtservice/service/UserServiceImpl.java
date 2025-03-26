@@ -28,10 +28,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId).map(userMapper::toDto);
     }
 
-    @Override
-    public Mono<UserDTO> getUserByKeycloakId(UUID id) {
-        return userRepository.findByKeycloakId(id).map(userMapper::toDto);
-    }
 
     @Override
     public Mono<UserDTO> updateUser(UUID userId, UserDTO userDTO) {

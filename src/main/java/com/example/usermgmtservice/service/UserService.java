@@ -10,7 +10,6 @@ public interface UserService {
     Flux<UserDTO> listUsers();
 
     Mono<UserDTO> getUserById(UUID userId);
-    Mono<UserDTO> getUserByKeycloakId(UUID id);
 
     Mono<UserDTO> updateUser(UUID userId, UserDTO userDTO);
 

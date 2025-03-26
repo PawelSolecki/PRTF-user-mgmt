@@ -12,5 +12,4 @@ import java.util.UUID;
 public interface UserRepository extends ReactiveCrudRepository<User, UUID> {
     Mono<User> findByEmail(String email);
 
-    Mono<User> findByKeycloakId(UUID id);
 }
