@@ -24,6 +24,7 @@ public class AuthRouterConfig {
             .POST(AUTH_PATH+"/register", accept(APPLICATION_JSON), handler::register)
             .POST(AUTH_PATH+"/login", accept(APPLICATION_JSON), handler::login)
             .POST(AUTH_PATH+"/logout", accept(APPLICATION_JSON), handler::logout)
+            .POST(AUTH_PATH+"/refresh", accept(APPLICATION_JSON), handler::refreshToken)
             .build();
     }
 }

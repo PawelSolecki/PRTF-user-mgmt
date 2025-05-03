@@ -129,4 +129,19 @@ public class AuthServiceKeycloakImpl implements AuthService {
             .toBodilessEntity()
             .then();
     }
+
+    @Override
+    public Mono<TokenResponse> refreshToken(RefreshTokenRequest request) {
+        return webClient.post()
+            .uri(authServerUrl + "/realms/{realm}/protocol/openid-connect/token", realm)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .bodyValue(
+                "grant_type=refresh_token&" +
+                    "client_id=" + clientId + "&" +
+                    "client_secret=" + clientSecret + "&" +
+                    "refresh_token=" + request.refreshToken()
+            )
+            .retrieve()
+            .bodyToMono(TokenResponse.class);
+    }
 }

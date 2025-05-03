@@ -5,7 +5,7 @@ spring:
     password: ${DB_PASSWORD}
 
   datasource:  # Flyway używa klasycznego JDBC
-    url: jdbc:postgresql://localhost:5432/users
+    url: jdbc:postgresql://localhost:15432/users
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -33,4 +33,6 @@ keycloak:
   auth-server-url: http://localhost:8080
   client-id: user-mgmt-client
   client-secret: ${KC_CLIENT_SECRET}
+
+https: false
 

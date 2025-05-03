@@ -8,4 +8,6 @@ public interface AuthService {
     Mono<TokenResponse> login(LoginRequest request);
 
     Mono<Void> logout(LogoutRequest request);
+
+    Mono<TokenResponse> refreshToken(RefreshTokenRequest request);
 }
