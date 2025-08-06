@@ -1,13 +1,31 @@
 services:
-  portfolio-db:
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user-service
+    environment:
+      - KEYCLOAK_REALM=portfolios
+      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_ID=user-mgmt-client
+      - KEYCLOAK_CLIENT_SECRET=${KC_CLIENT_SECRET}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "8081:8080"
+    depends_on:
+      - user-db
+
+  user-db:
     image: "postgres:16"
     container_name: user-db
     ports:
       - "5432:5432"
     environment:
       POSTGRES_DB: users
-      POSTGRES_USER: pawel
-      POSTGRES_PASSWORD: haslomaslo2000
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_NAME}
     volumes:
       - db-users-data:/var/lib/postgresql/data
 

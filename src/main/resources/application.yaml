@@ -1,20 +1,20 @@
 spring:
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/users
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: r2dbc:postgresql://user-db:5432/users
+    username: ${db.user}
+    password: ${db.password}
 
-  datasource:  # Flyway używa klasycznego JDBC
-    url: jdbc:postgresql://localhost:15432/users
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+  datasource:
+    url: jdbc:postgresql://user-db:15432/users
+    username: ${db.user}
+    password: ${db.password}
     driver-class-name: org.postgresql.Driver
 
   flyway:
     enabled: true
-    url: jdbc:postgresql://localhost:5432/users
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://user-db:5432/users
+    user: ${db.user}
+    password: ${db.password}
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
@@ -35,4 +35,9 @@ keycloak:
   client-secret: ${KC_CLIENT_SECRET}
 
 https: false
+
+db:
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
+    name: users
 
