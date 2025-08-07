@@ -12,10 +12,14 @@ services:
       - KEYCLOAK_CLIENT_SECRET=${KC_CLIENT_SECRET}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=user-db:5432
     ports:
-      - "8081:8080"
+      - ":8081"
     depends_on:
       - user-db
+    networks:
+      - PRTF-network
+      - user-network
 
   user-db:
     image: "postgres:16"
@@ -28,7 +32,16 @@ services:
       POSTGRES_PASSWORD: ${DB_NAME}
     volumes:
       - db-users-data:/var/lib/postgresql/data
+    networks:
+      - user-network
 
 volumes:
   db-users-data:
     driver: local
+
+networks:
+  user-network:
+    driver: bridge
+  PRTF-network:
+    driver: bridge
+    external: true

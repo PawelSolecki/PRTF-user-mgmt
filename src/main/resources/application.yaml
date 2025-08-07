@@ -1,18 +1,18 @@
 spring:
   r2dbc:
-    url: r2dbc:postgresql://user-db:5432/users
+    url: r2dbc:postgresql://${db.host}/users
     username: ${db.user}
     password: ${db.password}
 
   datasource:
-    url: jdbc:postgresql://user-db:15432/users
+    url: jdbc:postgresql://${db.host}/users
     username: ${db.user}
     password: ${db.password}
     driver-class-name: org.postgresql.Driver
 
   flyway:
     enabled: true
-    url: jdbc:postgresql://user-db:5432/users
+    url: jdbc:postgresql://${db.host}/users
     user: ${db.user}
     password: ${db.password}
     locations: classpath:db/migration
@@ -23,14 +23,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: localhost:8080/realms/portfolios
-          jwk-set-uri: localhost:8080/realms/portfolios/protocol/openid-connect/certs
+          issuer-uri: ${security.host}/realms/portfolios
+          jwk-set-uri: ${security.host}/realms/portfolios/protocol/openid-connect/certs
 server:
   port: 8081
 
 keycloak:
   realm: portfolios
-  auth-server-url: http://localhost:8080
+  auth-server-url: ${security.host}
   client-id: user-mgmt-client
   client-secret: ${KC_CLIENT_SECRET}
 
@@ -40,4 +40,7 @@ db:
     user: ${DB_USER}
     password: ${DB_PASSWORD}
     name: users
+    host: localhost:5432
 
+security:
+  host: http://localhost:8080
