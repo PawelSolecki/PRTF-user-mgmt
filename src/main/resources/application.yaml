@@ -9,6 +9,9 @@ spring:
     username: ${db.user}
     password: ${db.password}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-init-sql: SET app.mock_data TO '${MOCK_DATA_ENABLED:false}'
+
 
   flyway:
     enabled: true
@@ -18,6 +21,7 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
+
 
   security:
     oauth2:

@@ -12,7 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table("users")
+@Table("portfolios_users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
