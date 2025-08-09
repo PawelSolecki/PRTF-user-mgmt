@@ -16,7 +16,7 @@ services:
       - SECURITY_HOST=http://keycloak:8080
       - MOCK_DATA_ENABLED=true
     ports:
-      - ":8081"
+      - "8081:8081"
     depends_on:
       - user-db
     networks:
